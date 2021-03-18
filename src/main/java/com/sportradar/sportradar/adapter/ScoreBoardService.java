@@ -16,19 +16,27 @@ public class ScoreBoardService implements ScoreBoardUseCase {
     scoreBoard = new ScoreBoard();
   }
 
-
   @Override
   public Game startGame(String homeTeamName, String awayTeamName) {
     Game game =
-            Game.builder()
-                    .homeTeamName(homeTeamName)
-                    .awayTeamName(awayTeamName)
-                    .homeTeamScore(0)
-                    .awayTeamScore(0)
-                    .build();
+        Game.builder()
+            .homeTeamName(homeTeamName)
+            .awayTeamName(awayTeamName)
+            .homeTeamScore(0)
+            .awayTeamScore(0)
+            .build();
 
     scoreBoard.getGames().add(game);
     return game;
   }
 
+  @Override
+  public Boolean finishGame(String homeTeamName, String awayTeamName) {
+    return scoreBoard
+        .getGames()
+        .removeIf(
+            game ->
+                game.getHomeTeamName().equals(homeTeamName)
+                    && game.getAwayTeamName().equals(awayTeamName));
+  }
 }
