@@ -1,6 +1,6 @@
 # SportRadar
 
-Minimal [Spring Boot](http://projects.spring.io/spring-boot/) rest app to store the different ARI request from a PMS.
+Minimal [Spring Boot](http://projects.spring.io/spring-boot/) app to manage a score board
 
 ## Requirements
 
