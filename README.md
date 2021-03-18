@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/SebaLG/sportradar.svg?branch=master)](https://travis-ci.com/SebaLG/sportradar)
+
 # SportRadar
 
 Minimal [Spring Boot](http://projects.spring.io/spring-boot/) app to manage a score board
