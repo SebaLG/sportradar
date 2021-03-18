@@ -6,6 +6,11 @@ import com.sportradar.sportradar.port.ScoreBoardUseCase;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayDeque;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Data
 @Service
 public class ScoreBoardService implements ScoreBoardUseCase {
@@ -38,5 +43,43 @@ public class ScoreBoardService implements ScoreBoardUseCase {
             game ->
                 game.getHomeTeamName().equals(homeTeamName)
                     && game.getAwayTeamName().equals(awayTeamName));
+  }
+
+  @Override
+  public Game updateGame(
+      String homeTeamName, String awayTeamName, int homeTeamScore, int awayTeamScore) {
+    Game gameToUpdate =
+        scoreBoard.getGames().stream()
+            .filter(
+                game ->
+                    game.getHomeTeamName().equals(homeTeamName)
+                        && game.getAwayTeamName().equals(awayTeamName))
+            .findFirst()
+            .orElseThrow(() -> new NoSuchElementException());
+
+    gameToUpdate.setHomeTeamScore(homeTeamScore);
+    gameToUpdate.setAwayTeamScore(awayTeamScore);
+    return gameToUpdate;
+  }
+
+  @Override
+  public String summaryGames() {
+    final String[] summary = {""};
+    scoreBoard.getGames().stream()
+        .collect(Collectors.toCollection(ArrayDeque::new))
+        .descendingIterator()
+        .forEachRemaining(
+            game ->
+                summary[0] +=
+                    (game.getHomeTeamName()
+                        + " "
+                        + game.getHomeTeamScore()
+                        + " - "
+                        + game.getAwayTeamName()
+                        + " "
+                        + game.getAwayTeamScore()
+                        + "\n"));
+
+    return summary[0];
   }
 }

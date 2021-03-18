@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.util.NoSuchElementException;
+
 public class ScoreBoardServiceTest {
 
   private ScoreBoardService scoreBoardService;
@@ -41,15 +43,14 @@ public class ScoreBoardServiceTest {
     // Given
     String homeTeamName = "Uruguay";
     String awayTeamName = "Italy";
-    Game gameToAdd =
+    var games = scoreBoardService.getScoreBoard().getGames();
+    games.add(
         Game.builder()
             .homeTeamName(homeTeamName)
             .awayTeamName(awayTeamName)
             .homeTeamScore(0)
             .awayTeamScore(0)
-            .build();
-    var games = scoreBoardService.getScoreBoard().getGames();
-    games.add(gameToAdd);
+            .build());
 
     // When
     scoreBoardService.finishGame(homeTeamName, awayTeamName);
@@ -64,8 +65,85 @@ public class ScoreBoardServiceTest {
                         && game.getAwayTeamName().equals(awayTeamName)));
   }
 
+  @Test
+  void updateGame_GameExisting_UpdateInScoreBoard() {
+    // Given
+    String homeTeamName = "Uruguay";
+    String awayTeamName = "Italy";
+    int homeTeamScore = 2;
+    int awayTeamScore = 2;
+    var games = scoreBoardService.getScoreBoard().getGames();
+    games.add(
+        Game.builder()
+            .homeTeamName(homeTeamName)
+            .awayTeamName(awayTeamName)
+            .homeTeamScore(0)
+            .awayTeamScore(0)
+            .build());
+
+    // When
+    scoreBoardService.updateGame(homeTeamName, awayTeamName, homeTeamScore, awayTeamScore);
+
+    // Then
+    Assertions.assertEquals(
+        true,
+        games.stream()
+            .anyMatch(
+                game ->
+                    game.getHomeTeamName().equals(homeTeamName)
+                        && game.getAwayTeamName().equals(awayTeamName)
+                        && game.getAwayTeamScore() == 2
+                        && game.getHomeTeamScore() == 2));
+  }
+
+  @Test
+  void updateGame_NonExistingGame_ThrowExeption() {
+    // Given
+    Throwable e = null;
+    String homeTeamName = "Uruguay";
+    String awayTeamName = "Italy";
+    var games = scoreBoardService.getScoreBoard().getGames();
+    games.add(
+        Game.builder()
+            .homeTeamName(homeTeamName)
+            .awayTeamName(awayTeamName)
+            .homeTeamScore(0)
+            .awayTeamScore(0)
+            .build());
+
+    // When
+    try {
+      scoreBoardService.updateGame("Spain", awayTeamName, 2, 2);
+    } catch (Throwable ex) {
+      e = ex;
+    }
+
+    // Then
+    Assertions.assertTrue(e instanceof NoSuchElementException);
+  }
 
 
+  @Test
+  void summaryGames_ShowSummary() {
+    // Given
+    String summaryExpected = "Italy 0 - Brazil 0\n" + "Spain 0 - Uruguay 0\n";
+    var games = scoreBoardService.getScoreBoard().getGames();
+    games.add(
+            Game.builder()
+                    .homeTeamName("Spain")
+                    .awayTeamName("Uruguay")
+                    .homeTeamScore(0)
+                    .awayTeamScore(0)
+                    .build());
+     games.add(
+            Game.builder()
+                    .homeTeamName("Italy")
+                    .awayTeamName("Brazil")
+                    .homeTeamScore(0)
+                    .awayTeamScore(0)
+                    .build());
 
-
+    String summary = scoreBoardService.summaryGames();
+    Assertions.assertEquals(summaryExpected, summary);
+  }
 }
